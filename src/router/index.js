@@ -1,15 +1,49 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import Home from '@/components/Home'
+import Login from '@/components/Login'
+import Users from '@/components/Users'
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
-    }
+const router = new Router({
+  routes: [{
+    path: '/',
+    component: Login
+  },
+  {
+    path: '/login',
+    component: Login
+  },
+  {
+    path: '/home',
+    component: Home,
+    children: [
+      {
+        path: '/users',
+        component: Users
+      }]
+  }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  // 如果是去登录的，放行
+  // console.log('to', to)
+  // console.log('from', from)
+  if (to.path === '/login') {
+    next()
+    return
+  }
+  // 如果不是登录的，判断是否有token，如果有，放走
+  // 如果没有，去登录
+  let token = localStorage.getItem('token')
+  if (token) {
+    next()
+  } else {
+    next('/login')
+  }
+  // console.log('哈哈哈，你被我拦住了吧')
+})
+
+export default router
